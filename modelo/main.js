@@ -165,7 +165,7 @@ for (var i = 0; i < cantidadDePasillos; i++) {
     backWall.material = wallMaterial;
     frontWall.material = wallMaterial; // Si se creó la pared frontal
 
-
+// hola
 
 
 // Obtener la altura actual del suelo (floor)
