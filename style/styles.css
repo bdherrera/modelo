@@ -1,0 +1,14 @@
+/* Estilo básico para el botón */
+#changeCameraButton {
+    background-color: #007bff; /* Color de fondo */
+    color: #fff; /* Color del texto */
+    padding: 10px 20px; /* Espaciado interior (arriba/abajo izquierda/derecha) */
+    border: none; /* Borde */
+    border-radius: 5px; /* Borde redondeado */
+    cursor: pointer; /* Cambia el cursor al pasar el ratón */
+}
+
+/* Estilo al pasar el ratón por encima del botón */
+#changeCameraButton:hover {
+    background-color: #0056b3; /* Cambia el color de fondo al pasar el ratón */
+}
