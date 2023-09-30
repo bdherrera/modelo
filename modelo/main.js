@@ -102,54 +102,59 @@ for (var i = 0; i < cantidadDePasillos; i++) {
 }
 
 
-
-// ... (Código anterior para crear los pasillos)
-
-// Función para crear un layout al lado del pasillo
+// Función para crear 5 layouts uno sobre otro
 function crearLayoutAlLadoDelPasillo(pasillo) {
     // Dimensiones del layout
-    var layoutWidth = anchoDelPasillo + 2; // Ajusta el ancho según tu diseño
-    var layoutHeight = 50; // Ajusta la altura según tu diseño
-    var layoutDepth = profundidadDelPasillo + 4; // Ajusta la profundidad según tu diseño
+    var layoutWidth = anchoDelPasillo + 8; // Ajusta el ancho según tu diseño
+    var layoutDepth = profundidadDelPasillo - 2; // Ajusta la profundidad según tu diseño
 
-    // Crear el layout como un cubo
-    var layout = BABYLON.MeshBuilder.CreateBox("layout", {
-        width: layoutWidth,
-        height: layoutHeight,
-        depth: layoutDepth
-    }, scene);
+    // Colores para las secciones del layout
+    var colores = [
+        new BABYLON.Color3(0.2, 0.6, 0.2), // Verde
+        new BABYLON.Color3(0.6, 0.2, 0.2), // Rojo
+        new BABYLON.Color3(0.2, 0.2, 0.6), // Azul
+        new BABYLON.Color3(0.6, 0.6, 0.2), // Amarillo
+        new BABYLON.Color3(0.2, 0.6, 0.6)  // Cian
+    ];
 
-    // Posicionar el layout al lado del pasillo
-    layout.position.x = pasillo.position.x + (anchoDelPasillo / 2) + (layoutWidth / 2);
-    layout.position.y = -2; // Mantiene la misma altura que el pasillo
-    layout.position.z = pasillo.position.z; // Puedes ajustar la posición en el eje z
+    var colorIndex = 0; // Índice para alternar colores
+    var layoutGroup = new BABYLON.Mesh("layoutGroup", scene); // Grupo para contener las secciones
 
-    // Asignar un material o color al layout
-    var layoutMaterial = new BABYLON.StandardMaterial("layoutMaterial", scene);
-    layoutMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.6, 0.2); // Color verde para el layout
-    layout.material = layoutMaterial;
+    for (var i = 0; i < 5; i++) {
+        // Crear una sección del layout como un cubo
+        var layoutSection = BABYLON.MeshBuilder.CreateBox("layoutSection", {
+            width: layoutWidth,
+            height: 10, // Altura fija de 10 unidades
+            depth: layoutDepth
+        }, scene);
 
-    return layout;
+        // Posicionar la sección del layout al lado del pasillo
+        layoutSection.position.x = pasillo.position.x + (anchoDelPasillo / 2) + (layoutWidth / 2);
+        layoutSection.position.y = 0 + i * 10; // Posición vertical de las secciones, comenzando desde el suelo (ajustado a -2)
+        layoutSection.position.z = 0; // Puedes ajustar la posición en el eje z
+
+        // Asignar un material con el color correspondiente a la sección del layout
+        var layoutMaterial = new BABYLON.StandardMaterial("layoutMaterial", scene);
+        layoutMaterial.diffuseColor = colores[colorIndex]; // Asignar el color de la lista
+        layoutSection.material = layoutMaterial;
+
+        // Cambiar al siguiente color en la lista (cíclicamente)
+        colorIndex = (colorIndex + 1) % colores.length;
+
+        // Agregar la sección del layout al grupo
+        layoutSection.parent = layoutGroup;
+    }
+
+    return layoutGroup;
 }
 
-// Crear dos layouts al lado de cada pasillo
+// Crear los 5 layouts uno sobre otro al lado de cada pasillo
 for (var i = 0; i < cantidadDePasillos; i++) {
     var pasillo = pasillos[i];
 
-    // Crear el primer layout al lado del pasillo
-    var layout1 = crearLayoutAlLadoDelPasillo(pasillo);
-
-    // Crear el segundo layout al lado del pasillo
-    var layout2 = crearLayoutAlLadoDelPasillo(pasillo);
-
-    // Posicionar el segundo layout a cierta distancia del primero
-    layout2.position.x += anchoDelPasillo + 2; // Ajusta la posición según tu diseño
+    // Crear los 5 layouts uno sobre otro al lado del pasillo
+    var layouts = crearLayoutAlLadoDelPasillo(pasillo);
 }
-
-
-
-
-
 
 
     var wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
@@ -163,8 +168,30 @@ for (var i = 0; i < cantidadDePasillos; i++) {
 
 
 
+// Obtener la altura actual del suelo (floor)
+var currentFloorHeight = floor.position.y;
 
+// Ajustar la posición vertical de todos los objetos para que estén al nivel 0
+floor.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+leftWall.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+rightWall.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+backWall.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+frontWall.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
 
+// Ajustar la posición vertical de los pasillos
+for (var i = 0; i < cantidadDePasillos; i++) {
+    pasillos[i].translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+}
+
+// Ajustar la posición vertical de los layouts
+for (var i = 0; i < cantidadDePasillos; i++) {
+    var pasillo = pasillos[i];
+    var layouts = crearLayoutAlLadoDelPasillo(pasillo);
+
+    layouts.getChildren().forEach(function (layoutSection) {
+        layoutSection.translate(BABYLON.Axis.Y, -currentFloorHeight, BABYLON.Space.LOCAL);
+    });
+}
 
     return scene;
 };
